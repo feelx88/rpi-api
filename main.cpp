@@ -1,24 +1,39 @@
 #include <pistache/http.h>
 #include <pistache/net.h>
 #include <pistache/endpoint.h>
-
-class HelloHandler : public Pistache::Http::Handler {
-public:
-
-    HTTP_PROTOTYPE(HelloHandler)
-
-    void onRequest(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response) {
-         response.send(Pistache::Http::Code::Ok, "Hello, World");
-    }
-};
+#include <pistache/router.h>
 
 int main(int argc, char** argv)
 {
-    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
-    
-    auto opts = Pistache::Http::Endpoint::options().threads(1);
-    Pistache::Http::Endpoint server(addr);
-    server.init(opts);
-    server.setHandler(std::make_shared<HelloHandler>());
-    server.serve();
+  using namespace Pistache;
+
+  Rest::Router router;
+  Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
+        Http::Mime::Type::Application,
+        Http::Mime::Subtype::Json
+        );
+
+  Rest::Routes::Get(router, "test/:ppp", [jsonMimeType](
+                    const Rest::Request &request,
+                    Http::ResponseWriter response) -> Rest::Route::Result {
+    if (request.param(":ppp").as<std::string>() == "moep")
+    {
+      response.send(Http::Code::Ok, "moep", jsonMimeType);
+      return Rest::Route::Result::Ok;
+    }
+    else
+    {
+      response.send(Http::Code::Bad_Request, "not moep!", jsonMimeType);
+      return Rest::Route::Result::Failure;
+    }
+  });
+
+  Address addr(Ipv4::any(), Port(9080));
+
+  auto opts = Http::Endpoint::options().threads(1);
+  opts.flags(Tcp::Options::ReuseAddr);
+  Http::Endpoint server(addr);
+  server.init(opts);
+  server.setHandler(router.handler());
+  server.serve();
 }
