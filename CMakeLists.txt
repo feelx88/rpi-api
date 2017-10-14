@@ -43,8 +43,21 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
 )
 
+ExternalProject_Add(
+  jsoncpp
+  GIT_REPOSITORY "https://github.com/nlohmann/json.git"
+  GIT_TAG "master"
+  UPDATE_COMMAND ""
+  INSTALL_COMMAND ""
+)
+
 set(SRC
-    main.cpp
+  src/main.cpp
+  src/authhandler.cpp
+)
+
+set(HEADERS
+  include/authhandler.hpp
 )
 
 set(ASSETS
@@ -54,15 +67,17 @@ set(ASSETS
 )
 add_custom_target(assets SOURCES ${ASSETS})
 
+include_directories(include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/pistache/include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/mongocxx/src)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/mongocxx-build/src)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/src/jsoncpp/src)
 include_directories(${MONGOC_INCLUDE_DIRS})
 
 find_package (libmongoc-1.0 1.7 REQUIRED)
 
-add_executable(api ${SRC})
-add_dependencies(api pistache jwt-cpp mongocxx wiringpi)
+add_executable(api ${SRC} ${HEADERS})
+add_dependencies(api pistache jwt-cpp mongocxx wiringpi jsoncpp)
 target_link_libraries(
   api
   pthread
