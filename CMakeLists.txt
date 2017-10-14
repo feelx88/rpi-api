@@ -45,7 +45,6 @@ set(SRC
 
 set(ASSETS
   .gitignore
-  .gitmodules
   LICENSE
   README.md
 )
