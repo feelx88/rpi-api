@@ -21,6 +21,14 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
 )
 
+ExternalProject_Add(
+  mongocxx
+  PREFIX "${CMAKE_SOURCE_DIR}/vendor"
+  GIT_REPOSITORY "https://github.com/mongodb/mongo-cxx-driver.git"
+  GIT_TAG "releases/stable"
+  INSTALL_COMMAND ""
+)
+
 set(SRC
     main.cpp
 )
