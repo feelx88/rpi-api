@@ -25,6 +25,14 @@ set(SRC
     main.cpp
 )
 
+set(ASSETS
+  .gitignore
+  .gitmodules
+  LICENSE
+  README.md
+)
+add_custom_target(assets SOURCES ${ASSETS})
+
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/pistache/include)
 
 add_executable(api ${SRC})
