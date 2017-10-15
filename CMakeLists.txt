@@ -3,7 +3,7 @@ include(ExternalProject)
 project(rpi-api)
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_FLAGS -std=c++11)
+set(CMAKE_CXX_FLAGS -std=c++17)
 
 set_directory_properties(PROPERTIES EP_PREFIX "${CMAKE_SOURCE_DIR}/vendor")
 ExternalProject_Add(
