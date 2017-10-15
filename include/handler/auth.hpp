@@ -11,10 +11,10 @@ class AuthHandler
 public:
   AuthHandler() = default;
 
-  ROUTE_GET("/status", status)
+  ROUTE_GET("/auth/status", status)
 
-  ROUTE_POST("/login", login)
-  ROUTE_POST("/logout", logout)
+  ROUTE_POST("/auth/login", login)
+  ROUTE_POST("/auth/logout", logout)
 
 private:
   boost::uuids::random_generator uuidgen;
