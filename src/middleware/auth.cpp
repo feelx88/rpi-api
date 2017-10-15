@@ -24,9 +24,13 @@ AuthMiddleware::AuthMiddleware()
 
 std::optional<Rest::Route::Result> AuthMiddleware::operator()(const Rest::Request &request, Http::ResponseWriter &response)
 {
-  bool success = impl->authService->isAuthenticated(request.cookies().get("token").value);
-  response.send(success ? Http::Code::Ok : Http::Code::Unauthorized, json{
-    {"success", success}
-  }.dump(), impl->jsonMimeType);
-  return success ? std::nullopt : std::make_optional(Rest::Route::Result::Failure);
+  if(!impl->authService->isAuthenticated(request.cookies().get("token").value))
+  {
+    response.send(Http::Code::Unauthorized, json{
+      {"success", false}
+    }.dump(), impl->jsonMimeType);
+
+    return Rest::Route::Result::Failure;
+  }
+  return std::nullopt;
 }

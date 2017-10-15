@@ -28,8 +28,13 @@ AuthHandler::AuthHandler()
 
 ROUTE_GET_IMPL(AuthHandler, status)
 {
-  return impl->authMiddleware(request, response).has_value() ?
-    Rest::Route::Result::Failure : Rest::Route::Result::Ok;
+  MIDDLEWARE(impl->authMiddleware);
+
+  response.send(Http::Code::Ok, json{
+    {"success", true}
+  }.dump(), impl->jsonMimeType);
+
+  return Rest::Route::Result::Ok;
 }
 
 ROUTE_POST_IMPL(AuthHandler, login)
