@@ -15,7 +15,7 @@ static Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
 
 ROUTE_GET_IMPL(AuthHandler, status) {
   try {
-    HS256Validator signer("secret!");
+    HS256Validator signer(secret);
     JWT::Decode(request.cookies().get("token").value, &signer);
 
     response.send(Http::Code::Ok, json{
@@ -36,7 +36,7 @@ ROUTE_POST_IMPL(AuthHandler, login)
   bool success = body["username"] == "admin" && body["password"] == "admin";
   Http::Code returnCode = success ? Http::Code::Ok : Http::Code::Forbidden;
 
-  HS256Validator signer("secret!");
+  HS256Validator signer(secret);
   json payload = {{"sub", "subject"}, {"exp", -1}};
   auto token = JWT::Encode(signer, payload);
 
