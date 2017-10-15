@@ -13,6 +13,22 @@ static Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
   Http::Mime::Subtype::Json
 );
 
+ROUTE_GET_IMPL(AuthHandler, status) {
+  try {
+    HS256Validator signer("secret!");
+    JWT::Decode(request.cookies().get("token").value, &signer);
+
+    response.send(Http::Code::Ok, json{
+      {"success", true}
+    }.dump(), jsonMimeType);
+  } catch (InvalidTokenError &) {
+    response.send(Http::Code::Unauthorized, json{
+      {"success", false}
+    }.dump(), jsonMimeType);
+  }
+  return Rest::Route::Result::Ok;
+}
+
 ROUTE_POST_IMPL(AuthHandler, login)
 {
   json body(json::parse(request.body()));

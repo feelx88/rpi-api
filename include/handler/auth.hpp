@@ -9,6 +9,8 @@ class AuthHandler
 public:
   AuthHandler() = default;
 
+  ROUTE_GET("/status", status)
+
   ROUTE_POST("/login", login)
   ROUTE_POST("/logout", logout)
 };

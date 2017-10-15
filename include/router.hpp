@@ -17,22 +17,34 @@
     }
 
 #define ROUTE_POST(path, methodName) \
+  ROUTE_INTERNAL(Post, path, methodName)
+
+#define ROUTE_GET(path, methodName) \
+  ROUTE_INTERNAL(Get, path, methodName)
+
+#define ROUTE_INTERNAL(impl, path, methodName) \
   private: \
     const std::string methodName ## _path = path; \
-    void register_ ## methodName(Pistache::Rest::Router* router) \
+    void register_ ## impl ## methodName(Pistache::Rest::Router* router) \
     { \
-      Pistache::Rest::Routes::Post(*router, methodName ## _path, std::bind(&decltype(std::remove_pointer<decltype(this)>::type())::methodName, this, std::placeholders::_1, std::placeholders::_2)); \
+      Pistache::Rest::Routes::impl(*router, methodName ## _path, std::bind(&decltype(std::remove_pointer<decltype(this)>::type())::impl ## methodName, this, std::placeholders::_1, std::placeholders::_2)); \
     } \
-    bool add_ ## methodName ## _route() \
+    bool add_ ## impl ## methodName ## _route() \
     { \
-      routes.push_back([this](Pistache::Rest::Router* router){register_ ## methodName(router);}); \
+      routes.push_back([this](Pistache::Rest::Router* router){register_ ## impl ## methodName(router);}); \
       return true; \
     } \
-    bool methodName ## _dummy = add_ ## methodName ## _route(); \
+    bool impl ## methodName ## _dummy = add_ ## impl ## methodName ## _route(); \
   public: \
-    Pistache::Rest::Route::Result methodName(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    Pistache::Rest::Route::Result impl ## methodName(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+
+#define ROUTE_IMPL_INTERNAL(impl, className, methodName) \
+  Pistache::Rest::Route::Result className::impl ## methodName(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response)
 
 #define ROUTE_POST_IMPL(className, methodName) \
-  Pistache::Rest::Route::Result className::methodName(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response)
+  ROUTE_IMPL_INTERNAL(Post, className, methodName)
+
+#define ROUTE_GET_IMPL(className, methodName) \
+  ROUTE_IMPL_INTERNAL(Get, className, methodName)
 
 #endif // ROUTER_HPP
