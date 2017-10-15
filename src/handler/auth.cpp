@@ -7,11 +7,12 @@
 
 using namespace nlohmann;
 using namespace Pistache;
+using namespace boost;
 
 struct AuthHandlerImpl
 {
-  std::shared_ptr<HS256Validator> signer =
-    std::make_shared<HS256Validator>(boost::uuids::to_string(boost::uuids::random_generator()()));
+  std::shared_ptr<MessageSigner> signer =
+    std::make_shared<HS256Validator>(uuids::to_string(uuids::random_generator()()));
 
   Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
     Http::Mime::Type::Application,
