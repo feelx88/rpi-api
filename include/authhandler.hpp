@@ -1,16 +1,16 @@
 #ifndef AUTHHANDLER_H
 #define AUTHHANDLER_H
 
-#include <json.hpp>
-#include <pistache/http.h>
-#include <pistache/router.h>
+#include <router.hpp>
 
 class AuthHandler
 {
+  ROUTE_INIT
 public:
   AuthHandler() = default;
 
-  Pistache::Rest::Route::Result login(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+  ROUTE_POST("/login", login)
+  ROUTE_POST("/logout", logout)
 };
 
 #endif // AUTHHANDLER_H

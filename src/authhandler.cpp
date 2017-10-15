@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <json.hpp>
+
 using namespace nlohmann;
 using namespace Pistache;
 
@@ -10,7 +12,7 @@ static Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
   Http::Mime::Subtype::Json
 );
 
-Pistache::Rest::Route::Result AuthHandler::login(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response)
+ROUTE_POST_IMPL(AuthHandler, login)
 {
   json body(json::parse(request.body()));
 
@@ -19,6 +21,14 @@ Pistache::Rest::Route::Result AuthHandler::login(const Pistache::Rest::Request &
 
   response.send(returnCode, json{
     {"succes", success}
+  }.dump(), jsonMimeType);
+
+  return Rest::Route::Result::Ok;
+}
+
+ROUTE_POST_IMPL(AuthHandler, logout) {
+  response.send(Http::Code::Ok, json{
+    {"succes", true}
   }.dump(), jsonMimeType);
 
   return Rest::Route::Result::Ok;

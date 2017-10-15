@@ -57,6 +57,7 @@ set(SRC
 )
 
 set(HEADERS
+  include/router.hpp
   include/authhandler.hpp
 )
 
