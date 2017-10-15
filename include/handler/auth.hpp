@@ -1,15 +1,19 @@
 #ifndef AUTHHANDLER_H
 #define AUTHHANDLER_H
 
+#include <memory>
+
 #include <router.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
+
+struct AuthHandlerImpl;
 
 class AuthHandler
 {
   ROUTE_INIT
 public:
-  AuthHandler() = default;
+  AuthHandler();
 
   ROUTE_GET("/auth/status", status)
 
@@ -17,8 +21,7 @@ public:
   ROUTE_POST("/auth/logout", logout)
 
 private:
-  boost::uuids::random_generator uuidgen;
-  std::string secret = boost::uuids::to_string(uuidgen());
+  std::shared_ptr<AuthHandlerImpl> impl;
 };
 
 #endif // AUTHHANDLER_H

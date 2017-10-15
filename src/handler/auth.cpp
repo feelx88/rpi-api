@@ -8,23 +8,33 @@
 using namespace nlohmann;
 using namespace Pistache;
 
-static Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
-  Http::Mime::Type::Application,
-  Http::Mime::Subtype::Json
-);
+struct AuthHandlerImpl
+{
+  std::shared_ptr<HS256Validator> signer =
+    std::make_shared<HS256Validator>(boost::uuids::to_string(boost::uuids::random_generator()()));
+
+  Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
+    Http::Mime::Type::Application,
+    Http::Mime::Subtype::Json
+  );
+};
+
+AuthHandler::AuthHandler()
+  : impl(new AuthHandlerImpl)
+{
+}
 
 ROUTE_GET_IMPL(AuthHandler, status) {
   try {
-    HS256Validator signer(secret);
-    JWT::Decode(request.cookies().get("token").value, &signer);
+    JWT::Decode(request.cookies().get("token").value, impl->signer.get());
 
     response.send(Http::Code::Ok, json{
       {"success", true}
-    }.dump(), jsonMimeType);
+    }.dump(), impl->jsonMimeType);
   } catch (InvalidTokenError &) {
     response.send(Http::Code::Unauthorized, json{
       {"success", false}
-    }.dump(), jsonMimeType);
+    }.dump(), impl->jsonMimeType);
   }
   return Rest::Route::Result::Ok;
 }
@@ -36,15 +46,14 @@ ROUTE_POST_IMPL(AuthHandler, login)
   bool success = body["username"] == "admin" && body["password"] == "admin";
   Http::Code returnCode = success ? Http::Code::Ok : Http::Code::Forbidden;
 
-  HS256Validator signer(secret);
   json payload = {{"sub", "subject"}, {"exp", -1}};
-  auto token = JWT::Encode(signer, payload);
+  auto token = JWT::Encode(*impl->signer, payload);
 
   response.cookies().add(Http::Cookie("token", token));
 
   response.send(returnCode, json{
     {"succes", success}
-  }.dump(), jsonMimeType);
+  }.dump(), impl->jsonMimeType);
 
   return Rest::Route::Result::Ok;
 }
@@ -54,7 +63,7 @@ ROUTE_POST_IMPL(AuthHandler, logout) {
 
   response.send(Http::Code::Ok, json{
     {"succes", true}
-  }.dump(), jsonMimeType);
+  }.dump(), impl->jsonMimeType);
 
   return Rest::Route::Result::Ok;
 }
