@@ -3,7 +3,7 @@
 #include <pistache/endpoint.h>
 #include <pistache/router.h>
 
-#include <authhandler.hpp>
+#include <handler/auth.hpp>
 
 int main(int, char**)
 {

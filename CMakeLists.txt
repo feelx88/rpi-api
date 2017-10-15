@@ -53,12 +53,12 @@ ExternalProject_Add(
 
 set(SRC
   src/main.cpp
-  src/authhandler.cpp
+  src/handler/auth.cpp
 )
 
 set(HEADERS
   include/router.hpp
-  include/authhandler.hpp
+  include/handler/auth.hpp
 )
 
 set(ASSETS
