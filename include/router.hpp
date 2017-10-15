@@ -47,4 +47,10 @@
 #define ROUTE_GET_IMPL(className, methodName) \
   ROUTE_IMPL_INTERNAL(Get, className, methodName)
 
+#define MIDDLEWARE(middleware) \
+  std::optional<Pistache::Rest::Route::Result> res = middleware(request, response); \
+  if(res.has_value()) {\
+    return res.value();\
+  }
+
 #endif // ROUTER_HPP
