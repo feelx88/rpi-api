@@ -1,9 +1,9 @@
 #include <handler/auth.hpp>
 
 #include <iostream>
-
 #include <json.hpp>
-#include <jwt/jwt_all.h>
+
+#include <service/auth.hpp>
 
 using namespace nlohmann;
 using namespace Pistache;
@@ -11,13 +11,12 @@ using namespace boost;
 
 struct AuthHandlerImpl
 {
-  std::shared_ptr<MessageSigner> signer =
-    std::make_shared<HS256Validator>(uuids::to_string(uuids::random_generator()()));
-
   Http::Mime::MediaType jsonMimeType = Http::Mime::MediaType(
     Http::Mime::Type::Application,
     Http::Mime::Subtype::Json
   );
+
+  std::shared_ptr<AuthService> authService = AuthService::getInstance();
 };
 
 AuthHandler::AuthHandler()
@@ -25,32 +24,24 @@ AuthHandler::AuthHandler()
 {
 }
 
-ROUTE_GET_IMPL(AuthHandler, status) {
-  try {
-    JWT::Decode(request.cookies().get("token").value, impl->signer.get());
-
-    response.send(Http::Code::Ok, json{
-      {"success", true}
-    }.dump(), impl->jsonMimeType);
-  } catch (InvalidTokenError &) {
-    response.send(Http::Code::Unauthorized, json{
-      {"success", false}
-    }.dump(), impl->jsonMimeType);
-  }
-  return Rest::Route::Result::Ok;
+ROUTE_GET_IMPL(AuthHandler, status)
+{
+  bool success = impl->authService->isAuthenticated(request.cookies().get("token").value);
+  response.send(success ? Http::Code::Ok : Http::Code::Unauthorized, json{
+    {"success", success}
+  }.dump(), impl->jsonMimeType);
+  return success ? Rest::Route::Result::Ok : Rest::Route::Result::Failure;
 }
 
 ROUTE_POST_IMPL(AuthHandler, login)
 {
   json body(json::parse(request.body()));
 
-  bool success = body["username"] == "admin" && body["password"] == "admin";
+  std::optional<std::string> token = impl->authService->authenticate(body["username"], body["password"]);
+  bool success = token.has_value();
   Http::Code returnCode = success ? Http::Code::Ok : Http::Code::Forbidden;
 
-  json payload = {{"sub", "subject"}, {"exp", -1}};
-  auto token = JWT::Encode(*impl->signer, payload);
-
-  response.cookies().add(Http::Cookie("token", token));
+  response.cookies().add(Http::Cookie("token", token.value_or("")));
 
   response.send(returnCode, json{
     {"succes", success}
@@ -59,7 +50,8 @@ ROUTE_POST_IMPL(AuthHandler, login)
   return Rest::Route::Result::Ok;
 }
 
-ROUTE_POST_IMPL(AuthHandler, logout) {
+ROUTE_POST_IMPL(AuthHandler, logout)
+{
   response.cookies().add(Http::Cookie("token", ""));
 
   response.send(Http::Code::Ok, json{
