@@ -1,5 +1,5 @@
-#ifndef AUTHHANDLER_H
-#define AUTHHANDLER_H
+#ifndef AUTH_HANDLER_H
+#define AUTH_HANDLER_H
 
 #include <memory>
 
@@ -24,4 +24,4 @@ private:
   std::shared_ptr<AuthHandlerImpl> impl;
 };
 
-#endif // AUTHHANDLER_H
+#endif // AUTH_HANDLER_H

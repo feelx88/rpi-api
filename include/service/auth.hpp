@@ -1,5 +1,5 @@
-#ifndef AUTH_H
-#define AUTH_H
+#ifndef AUTH_SERVICE_H
+#define AUTH_SERVICE_H
 
 #include <string>
 #include <memory>
@@ -24,4 +24,4 @@ private:
   std::shared_ptr<AuthServiceImpl> impl;
 };
 
-#endif // AUTH_H
+#endif // AUTH_SERVICE_H
