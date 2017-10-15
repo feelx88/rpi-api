@@ -4,6 +4,7 @@
 #include <json.hpp>
 
 #include <service/auth.hpp>
+#include <middleware/auth.hpp>
 
 using namespace nlohmann;
 using namespace Pistache;
@@ -17,6 +18,7 @@ struct AuthHandlerImpl
   );
 
   std::shared_ptr<AuthService> authService = AuthService::getInstance();
+  AuthMiddleware authMiddleware;
 };
 
 AuthHandler::AuthHandler()
@@ -26,11 +28,8 @@ AuthHandler::AuthHandler()
 
 ROUTE_GET_IMPL(AuthHandler, status)
 {
-  bool success = impl->authService->isAuthenticated(request.cookies().get("token").value);
-  response.send(success ? Http::Code::Ok : Http::Code::Unauthorized, json{
-    {"success", success}
-  }.dump(), impl->jsonMimeType);
-  return success ? Rest::Route::Result::Ok : Rest::Route::Result::Failure;
+  return impl->authMiddleware(request, response).has_value() ?
+    Rest::Route::Result::Failure : Rest::Route::Result::Ok;
 }
 
 ROUTE_POST_IMPL(AuthHandler, login)
