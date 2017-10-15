@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <json.hpp>
+#include <jwt/jwt_all.h>
 
 using namespace nlohmann;
 using namespace Pistache;
@@ -19,6 +20,12 @@ ROUTE_POST_IMPL(AuthHandler, login)
   bool success = body["username"] == "admin" && body["password"] == "admin";
   Http::Code returnCode = success ? Http::Code::Ok : Http::Code::Forbidden;
 
+  HS256Validator signer("secret!");
+  json payload = {{"sub", "subject"}, {"exp", -1}};
+  auto token = JWT::Encode(signer, payload);
+
+  response.cookies().add(Http::Cookie("token", token));
+
   response.send(returnCode, json{
     {"succes", success}
   }.dump(), jsonMimeType);
@@ -27,6 +34,8 @@ ROUTE_POST_IMPL(AuthHandler, login)
 }
 
 ROUTE_POST_IMPL(AuthHandler, logout) {
+  response.cookies().add(Http::Cookie("token", ""));
+
   response.send(Http::Code::Ok, json{
     {"succes", true}
   }.dump(), jsonMimeType);

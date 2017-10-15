@@ -70,6 +70,7 @@ add_custom_target(assets SOURCES ${ASSETS})
 
 include_directories(include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/pistache/include)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/src/jwt-cpp/src/include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/mongocxx/src)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/mongocxx-build/src)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/src/jsoncpp/src)
@@ -84,6 +85,7 @@ target_link_libraries(
   pthread
   ${MONGOC_LIBRARIES}
   ${CMAKE_SOURCE_DIR}/vendor/src/pistache-build/src/libpistache.a
+  ${CMAKE_SOURCE_DIR}/vendor/src/jwt-cpp-build/src/libjwt.a
   ${CMAKE_SOURCE_DIR}/vendor/src/mongocxx-build/src/bsoncxx/libbsoncxx.a
   ${CMAKE_SOURCE_DIR}/vendor/src/mongocxx-build/src/mongocxx/libmongocxx.a
   ${CMAKE_SOURCE_DIR}/vendor/src/wiringpi/wiringPi/libwiringPi.a
